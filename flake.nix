@@ -20,8 +20,8 @@
         buildToolsVersion = "35.0.0";
 
         androidComposition = pkgs.androidenv.composeAndroidPackages {
-          platformVersions = [ "34" "35" ];
-          buildToolsVersions = [ buildToolsVersion "34.0.0" ];
+          platformVersions = [ "35" ];
+          buildToolsVersions = [ buildToolsVersion "35.0.0" ];
           includeEmulator = true;
           includeSystemImages = true;
           systemImageTypes = [ "google_apis" ];
