@@ -1,5 +1,10 @@
 .env
 
+# Release signing — never commit the keystore or its passwords
+keystore.properties
+*.jks
+*.keystore
+
 # Gradle / Android build output
 .gradle/
 build/

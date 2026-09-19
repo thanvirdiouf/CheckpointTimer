@@ -54,6 +54,47 @@ The APK lands at `app/build/outputs/apk/debug/app-debug.apk`. Install it with:
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
+## Release build
+
+Android requires the *same* signing key for every future update of an app, so a release build
+must be signed with a keystore you keep. Losing the keystore means the app can never be updated
+on an existing install — only uninstalled and reinstalled.
+
+Create one (choose your own password; back the file up somewhere safe):
+
+```bash
+keytool -genkeypair -v \
+  -keystore ~/checkpoint-timer-release.jks \
+  -alias checkpointtimer \
+  -keyalg RSA -keysize 4096 -validity 10000
+```
+
+Then put the details in `keystore.properties` at the repo root — it is gitignored, along with
+`*.jks` and `*.keystore`:
+
+```properties
+storeFile=/home/you/checkpoint-timer-release.jks
+storePassword=your-password
+keyAlias=checkpointtimer
+keyPassword=your-password
+```
+
+```bash
+gradle assembleRelease
+# -> app/build/outputs/apk/release/app-release.apk
+```
+
+Without `keystore.properties` the release build still runs, but produces an unsigned
+`app-release-unsigned.apk` that cannot be installed. Verify a signed build with:
+
+```bash
+apksigner verify --print-certs app/build/outputs/apk/release/app-release.apk
+```
+
+Note that release builds have `isMinifyEnabled = false`. Turning R8 on would shrink the APK
+considerably; it is off here because the app is small and it adds a class of runtime failure
+that only shows up in the minified build.
+
 ## Test
 
 ```bash
