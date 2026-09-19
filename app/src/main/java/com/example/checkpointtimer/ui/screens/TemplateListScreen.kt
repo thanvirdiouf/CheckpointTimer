@@ -145,25 +145,23 @@ private fun TemplateCard(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(modifier = Modifier.weight(1f)) {
+                // Duration and checkpoints are what the user is picking between, so they carry
+                // the weight; the name is only an identifier and takes the smallest type.
                 Text(
-                    text = template.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
+                    text = formatDuration(template.totalDurationMs),
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
                 )
                 Text(
-                    text = buildString {
-                        append(formatDuration(template.totalDurationMs))
-                        append(" · ")
-                        append(
-                            when (template.checkpoints.size) {
-                                0 -> "no checkpoints"
-                                1 -> "1 checkpoint"
-                                else -> "${template.checkpoints.size} checkpoints"
-                            },
-                        )
-                    },
+                    text = checkpointSummary(template),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Text(
+                    text = template.name,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 2.dp),
                 )
             }
 
@@ -197,6 +195,25 @@ private fun TemplateCard(
             }
         }
     }
+}
+
+/** How many checkpoint times to spell out before trailing off. */
+private const val MAX_LISTED_CHECKPOINTS = 3
+
+/**
+ * Names when each checkpoint fires rather than just how many there are — on the list screen the
+ * schedule is the detail that actually distinguishes one template from another.
+ */
+private fun checkpointSummary(template: TimerTemplate): String {
+    val checkpoints = template.checkpoints
+    if (checkpoints.isEmpty()) return "No checkpoints"
+
+    val times = checkpoints.take(MAX_LISTED_CHECKPOINTS).joinToString(", ") {
+        formatDuration(it.triggerMs)
+    }
+    val remainder = if (checkpoints.size > MAX_LISTED_CHECKPOINTS) "…" else ""
+    val label = if (checkpoints.size == 1) "1 checkpoint" else "${checkpoints.size} checkpoints"
+    return "$label at $times$remainder"
 }
 
 @Composable
